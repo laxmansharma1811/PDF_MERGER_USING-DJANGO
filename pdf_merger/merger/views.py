@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from django.shortcuts import render
 from PyPDF2 import PdfFileMerger
 import os
@@ -21,4 +22,12 @@ def upload_and_merge(request):
         output_path = os.path.join(settings.MEDIA_ROOT, 'merged.pdf')
         with open(output_path, 'wb') as output_file:
             merger.write(output_file)
+        merger.close()
 
+
+        with open(output_path, 'rb') as output_file:
+            response = HttpResponse(output_file.read(), content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; filename="merged.pdf"'
+            return response
+
+    return render(request, 'merger/upload.html')
